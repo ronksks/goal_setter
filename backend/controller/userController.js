@@ -41,37 +41,31 @@ const registerUser = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error("Please add all fields");
   }
+  //check if user exist
+  const userExist = await User.findOne({ email });
+  if (userExist) {
+    res.statusMessage(400);
+    throw new Error("User already exsits");
+  }
+  //Hash password
+  const salt = await bctypy.genSalt(10);
+  const hashPassword = await bctypy.hash(password, salt);
 
-  //   switch (req.body) {
-  //     case !req.body.name:
-  //       {
-  //         res.status(400);
-  //         // uses the new error handler
-  //         throw new Error("Please type a username");
-  //       }
-  //       break;
-  //     case !req.body.password:
-  //       {
-  //         res.status(400);
-  //         // uses the new error handler
-  //         throw new Error("Please type a password");
-  //       }
-  //       brake;
-  //     case !req.body.email:
-  //       {
-  //         res.status(400);
-  //         // uses the new error handler
-  //         throw new Error("Please type an email");
-  //       }
-  //       brake;
-  //   }
   const user = await User.create({
-    name: req.body.name,
-    password: req.body.password,
-    email: req.body.email,
+    name,
+    email,
+    password: hashPassword,
   });
-
-  res.status(200).json('Register User');
+  if (user) {
+    res.status(201).json({
+      _id: user.id,
+      name: user.name,
+      email: user.email,
+    });
+  } else {
+    res.status(400);
+    throw new Error("Invalid user data");
+  }
 });
 
 // // @desc    Get user data
