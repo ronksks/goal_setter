@@ -15,6 +15,22 @@ const User = require("../models/userModel");
 // });
 
 const loginUser = asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
+  const user = await User.findOne({ email });
+  //checks if user found and if he's password is currect
+  if (user && (await bctypy.compare(password, user.password))) {
+    res.json({
+      _id: user.id,
+      name: user.name,
+      email: user.email,
+      token: generateToken(user._id),
+
+    });
+  } else {
+    res.status(400);
+    throw new Error("Invalid credentials");
+  }
+
   res.json({ message: "Login user" });
 });
 //   const user = await User.findById(req.params.id);
@@ -44,7 +60,7 @@ const registerUser = asyncHandler(async (req, res) => {
   //check if user exist
   const userExist = await User.findOne({ email });
   if (userExist) {
-    res.statusMessage(400);
+    res.status(400);
     throw new Error("User already exsits");
   }
   //Hash password
@@ -61,6 +77,7 @@ const registerUser = asyncHandler(async (req, res) => {
       _id: user.id,
       name: user.name,
       email: user.email,
+      token: generateToken(user._id)
     });
   } else {
     res.status(400);
@@ -70,11 +87,17 @@ const registerUser = asyncHandler(async (req, res) => {
 
 // // @desc    Get user data
 // // @route   GET /api/me
-// // @access  Private
+// // @access  Public
 
 const getMe = asyncHandler(async (req, res) => {
   res.json({ massage: "User data display" });
 });
+
+// Generate JWT token
+
+const generateToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "30d" });
+};
 
 module.exports = {
   loginUser,
