@@ -6,12 +6,15 @@ const router = express.Router();
 //all functions are implemented in ('../controller/goalController')
 const { registerUser, getMe, loginUser} = require('../controller/userController.js');
 
+const {protect} = require('../middleware/authMiddleware');
+
+
 //  Each 2 func has the same route, so we can chain them and use the route
 // router.route('/').get(getUserInfo).post(registerUser).post(login);
 
 router.post('/', registerUser)
 router.post('/login', loginUser);
-router.post('/me', getMe);
+router.get('/me',protect, getMe);
 
 
 // router.route('/:id').put(updateGoal).delete(deleteGoal);
