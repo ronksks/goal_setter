@@ -8,11 +8,7 @@ const User = require("../models/userModel");
 // @desc    Authenticate user
 // @route   POST /api/login
 // @access  public
-// const getUserInfo = asyncHandler(async (req, res) => {
-//   const users = await User.find();
 
-//   res.status(200).json(users);
-// });
 
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
@@ -24,7 +20,6 @@ const loginUser = asyncHandler(async (req, res) => {
       name: user.name,
       email: user.email,
       token: generateToken(user._id),
-
     });
   } else {
     res.status(400);
@@ -33,20 +28,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
   res.json({ message: "Login user" });
 });
-//   const user = await User.findById(req.params.id);
-//   if (!user) {
-//     res.status(400);
-//     throw new Error("User not found");
-//   }
-//   console.log(user.name + user.password);
-//   //   const foundUserPassword = await User.findByIdAndUpdate(
-//   //     req.params.id,
-//   //     req.body.password
-//   //   );
-//   //   if (req.body.password === foundUserPassword.password) {
-//   //     res.status(200).json("Passwrod currect");
-//   //   }
-// });
+
 
 // @desc    Register new user
 // @route   POST /api/users
@@ -66,7 +48,7 @@ const registerUser = asyncHandler(async (req, res) => {
   //Hash password
   const salt = await bctypy.genSalt(10);
   const hashPassword = await bctypy.hash(password, salt);
-
+//  Create user
   const user = await User.create({
     name,
     email,
@@ -77,7 +59,7 @@ const registerUser = asyncHandler(async (req, res) => {
       _id: user.id,
       name: user.name,
       email: user.email,
-      token: generateToken(user._id)
+      token: generateToken(user._id),
     });
   } else {
     res.status(400);
@@ -87,14 +69,19 @@ const registerUser = asyncHandler(async (req, res) => {
 
 // // @desc    Get user data
 // // @route   GET /api/me
-// // @access  Public
+// // @access  Private
 
 const getMe = asyncHandler(async (req, res) => {
-  res.json({ massage: "User data display" });
+    //the req.user is for the user that is authenticated
+  const { _id, name, email } = await User.findById(req.user.id);
+  res.status(200).json({
+    id: _id,
+    name,
+    email,
+  });
 });
 
 // Generate JWT token
-
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "30d" });
 };

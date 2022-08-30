@@ -9,7 +9,8 @@ const Goal = require('../models/goalModel');
 // @route   GET /api/goals
 // @access  Private
 const getGoals = asyncHandler(async (req, res) => {
-    const goals = await Goal.find();
+    // get the goals for a specific user id, due to user id field in a goal
+    const goals = await Goal.find({user: req.user.id});
 
     res.status(200).json(goals);
 })
@@ -23,8 +24,10 @@ const setGoal = asyncHandler(async (req, res) => {
         // uses the new error handler
         throw new Error('Please add a text field');
     }
+    //  Eatch goal has a text and the user id that created the goal
     const goal = await Goal.create({
-        text: req.body.text
+        text: req.body.text,
+        user: req.user.id,
     })
 
     res.status(200).json(goal);
