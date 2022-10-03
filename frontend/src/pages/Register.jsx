@@ -22,6 +22,19 @@ function Register() {
     (state) => state.auth
   );
 
+  // if one the the dependency array changes the useEffect called
+  useEffect(()=>{
+    if(isError){
+      toast.error(message)
+    }
+
+    if(isSuccess || user){
+      navigate('/')
+    }
+    dispatch(reset())
+  }, [user, isError, isSuccess, message,navigate,dispatch]
+  )
+
   //    onChange we set the form data in a way each input would be the key, and th value would be what the user types in the same input
   const onChange = (e) => {
     setFormData((prevState) => ({
